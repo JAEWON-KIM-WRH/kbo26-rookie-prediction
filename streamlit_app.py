@@ -199,13 +199,14 @@ def main():
         st.plotly_chart(fig, use_container_width=True)
         
        # 테이블
-       st.markdown("### 📋 전체 순위")
-       display = predictions[['name','team','position','draft_pick','Status','Base_Prob','Final_Prob']].copy()
-       display = display.sort_values('Final_Prob', ascending=False).reset_index(drop=True)
-       display.index = display.index + 1  # 순위를 1부터 시작
-       display.index.name = '순위'
-       display.columns = ['선수명','팀','포지션','드래프트','상태','기본확률','최종확률']
-       
+        st.markdown("### 📋 전체 순위")
+        display = predictions[['name','team','position','draft_pick','Status','Base_Prob','Final_Prob']].copy()
+        display = display.sort_values('Final_Prob', ascending=False).reset_index(drop=True)
+        display.insert(0, '순위', range(1, len(display) + 1))
+        display.columns = ['순위','선수명','팀','포지션','드래프트','상태','기본확률','최종확률']
+        display['기본확률'] = display['기본확률'].apply(lambda x: f"{x*100:.1f}%")
+        display['최종확률'] = display.apply(lambda x: '보류' if x['상태']=='⚠️ 보류' else f"{float(x['최종확률'])*100:.1f}%", axis=1)
+        st.dataframe(display, use_container_width=True)
 
     
     # 탭2: 모델 성능
